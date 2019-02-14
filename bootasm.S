@@ -18,8 +18,10 @@ start:
   movw    %ax,%es             # -> Extra Segment
   movw    %ax,%ss             # -> Stack Segment
 
-  # Physical address line A20 is tied to zero so that the first PCs 
-  # with 2 MB would run software that assumed 1 MB.  Undo that.
+  # A virtual segment:offset memory address can yield a 21-bit physical
+  # address. However, the Intel 8088 could only address 20 bits of memory,
+  # so the default state is to drop the 21st bit. We can undo this by
+  # setting values on ports 0x64 and 0x60.
 seta20.1:
   inb     $0x64,%al               # Wait for not busy
   testb   $0x2,%al
@@ -39,21 +41,21 @@ seta20.2:
   # Switch from real to protected mode.  Use a bootstrap GDT that makes
   # virtual addresses map directly to physical addresses so that the
   # effective memory map doesn't change during the transition.
-  lgdt    gdtdesc
-  movl    %cr0, %eax
-  orl     $CR0_PE, %eax
-  movl    %eax, %cr0
+  lgdt    gdtdesc	# load the GDT
+  movl    %cr0, %eax	# copy the contents of register CR0 into eax
+  orl     $CR0_PE, %eax	# set the PE flag to signify transition to 32-bit Protected Mode
+  movl    %eax, %cr0	# copy the contents of eax back into CR0
 
-//PAGEBREAK!
   # Complete the transition to 32-bit protected mode by using a long jmp
   # to reload %cs and %eip.  The segment descriptors are set up with no
   # translation, so that the mapping is still the identity mapping.
-  ljmp    $(SEG_KCODE<<3), $start32
+  ljmp    $(SEG_KCODE<<3), $start32  # SEG_KCODE << 3 = 0x8 
+				     # 8 signifies the first non-zero segment in the GDT, which is the kernel code segment
 
 .code32  # Tell assembler to generate 32-bit code now.
 start32:
   # Set up the protected-mode data segment registers
-  movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
+  movw    $(SEG_KDATA<<3), %ax    # Our data segment selector (SEG_KDATA << 3 = 0x10 This is the second entry)
   movw    %ax, %ds                # -> DS: Data Segment
   movw    %ax, %es                # -> ES: Extra Segment
   movw    %ax, %ss                # -> SS: Stack Segment
@@ -62,7 +64,7 @@ start32:
   movw    %ax, %gs                # -> GS
 
   # Set up the stack pointer and call into C.
-  movl    $start, %esp
+  movl    $start, %esp		  # use the 'start' address because the stack will grow downwards, instead of into the code defined here
   call    bootmain
 
   # If bootmain returns (it shouldn't), trigger a Bochs
@@ -78,9 +80,9 @@ spin:
 # Bootstrap GDT
 .p2align 2                                # force 4 byte alignment
 gdt:
-  SEG_NULLASM                             # null seg
-  SEG_ASM(STA_X|STA_R, 0x0, 0xffffffff)   # code seg
-  SEG_ASM(STA_W, 0x0, 0xffffffff)         # data seg
+  GDT_NULL_SEGMENT                        					# null seg
+  GDT_SEGMENT(GDT_SEGMENT_X|GDT_SEGMENT_R, GDT_ADDRESS_MIN, GDT_ADDRESS_MAX)   	# code seg - covers all address range
+  GDT_SEGMENT(GDT_SEGMENT_W, GDT_ADDRESS_MIN, GDT_ADDRESS_MAX) 		        # data seg - covers all address range
 
 gdtdesc:
   .word   (gdtdesc - gdt - 1)             # sizeof(gdt) - 1

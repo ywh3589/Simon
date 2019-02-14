@@ -1,21 +1,21 @@
 // Format of an ELF executable file
 
-#define ELF_MAGIC 0x464C457FU  // "\x7FELF" in little endian
+#define ELF_MAGIC 0x464C457FU  // 0x7F, 'E', 'L', 'F' in little endian
 
 // File header
 struct elfhdr {
-  uint magic;  // must equal ELF_MAGIC
+  uint magic;  		// must equal ELF_MAGIC
   uchar elf[12];
   ushort type;
   ushort machine;
   uint version;
   uint entry;
-  uint phoff;
+  uint phoff;		// offset of the first program header
   uint shoff;
   uint flags;
   ushort ehsize;
   ushort phentsize;
-  ushort phnum;
+  ushort phnum;		// number of program headers to load
   ushort shentsize;
   ushort shnum;
   ushort shstrndx;
@@ -24,11 +24,12 @@ struct elfhdr {
 // Program section header
 struct proghdr {
   uint type;
-  uint off;
-  uint vaddr;
+  uint offset;		// location of contents relative to ELF header
+  uint vaddr;		// virtual address
   uint paddr;
-  uint filesz;
-  uint memsz;
+  uint filesz;		// number of bytes that need to be loaded from the file
+  uint memsz;		// number of bytes that need to be allocated in memory
+			// if memsz > filesz, the bytes not loaded from the file are to be zeroed
   uint flags;
   uint align;
 };

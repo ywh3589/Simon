@@ -53,9 +53,9 @@ struct segdesc {
 #define DPL_USER    0x3     // User DPL
 
 // Application segment type bits
-#define STA_X       0x8     // Executable segment
-#define STA_W       0x2     // Writeable (non-executable segments)
-#define STA_R       0x2     // Readable (executable segments)
+#define GDT_SEGMENT_X       0x8     // Executable segment
+#define GDT_SEGMENT_W       0x2     // Writeable (non-executable segments)
+#define GDT_SEGMENT_R       0x2     // Readable (executable segments)
 
 // System segment type bits
 #define STS_T32A    0x9     // Available 32-bit TSS

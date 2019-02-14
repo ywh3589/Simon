@@ -82,9 +82,9 @@ spin:
 
 .p2align 2
 gdt:
-  SEG_NULLASM
-  SEG_ASM(STA_X|STA_R, 0, 0xffffffff)
-  SEG_ASM(STA_W, 0, 0xffffffff)
+  GDT_NULL_SEGMENT                        					# null seg
+  GDT_SEGMENT(GDT_SEGMENT_X|GDT_SEGMENT_R, GDT_ADDRESS_MIN, GDT_ADDRESS_MAX)   	# code seg - covers all address range
+  GDT_SEGMENT(GDT_SEGMENT_W, GDT_ADDRESS_MIN, GDT_ADDRESS_MAX) 		        # data seg - covers all address range
 
 
 gdtdesc:
