@@ -74,35 +74,35 @@ define outputsts
 end  
 
 # IA32 2007, Volume 3A, Table 3-1
-set $STA_X = 0x8
-set $STA_E = 0x4
-set $STA_C = 0x4
-set $STA_W = 0x2
-set $STA_R = 0x2
-set $STA_A = 0x1
+set $GDT_SEGMENT_X = 0x8
+set $GDT_SEGMENT_E = 0x4
+set $GDT_SEGMENT_C = 0x4
+set $GDT_SEGMENT_W = 0x2
+set $GDT_SEGMENT_R = 0x2
+set $GDT_SEGMENT_A = 0x1
 
 define outputsta
-  if $arg0 & $STA_X
+  if $arg0 & $GDT_SEGMENT_X
     # Code segment
     echo code
-    if $arg0 & $STA_C
-      echo |STA_C
+    if $arg0 & $C
+      echo |GDT_SEGMENT_C
     end
-    if $arg0 & $STA_R
-      echo |STA_R
+    if $arg0 & $GDT_SEGMENT_R
+      echo |GDT_SEGMENT_R
     end
   else
     # Data segment
     echo data
-    if $arg0 & $STA_E
-      echo |STA_E
+    if $arg0 & $GDT_SEGMENT_E
+      echo |GDT_SEGMENT_E
     end
-    if $arg0 & $STA_W
-      echo |STA_W
+    if $arg0 & $GDT_SEGMENT_W
+      echo |GDT_SEGMENT_W
     end
   end
-  if $arg0 & $STA_A
-    echo |STA_A
+  if $arg0 & $GDT_SEGMENT_A
+    echo |GDT_SEGMENT_A
   else
     printf "      "
   end
