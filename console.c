@@ -119,7 +119,6 @@ void panic(char *s)
     ;
 }
 
-//PAGEBREAK: 50
 #define BACKSPACE 0x100
 #define CRTPORT 0x3d4
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
@@ -136,9 +135,20 @@ static void cgaputc(int c)
 
   if(c == '\n')
     pos += 80 - pos%80;
-  else if(c == BACKSPACE){
+  else if(c == BACKSPACE)
+  {
     if(pos > 0) --pos;
-  } else
+  }
+/*  else if(c == '\t')
+  {
+    int spaces = (pos + 1) % 4;		// determine how many space characters to add so it is a multiple of 4
+    if (spaces == 0)
+      spaces = 4;
+
+    for(int iii = 0; iii < spaces; ++iii)
+      cgaputc(' '); // space character
+  } */ 
+  else
     crt[pos++] = (c&0xff) | 0x0700;  // black on white
 
   if(pos < 0 || pos > 25*80)
@@ -157,6 +167,79 @@ static void cgaputc(int c)
   crt[pos] = ' ' | 0x0700;
 }
 
+void clear_terminal()
+{
+  int position;
+
+  // Cursor position: col + 80*row.
+  outb(CRTPORT, 14);
+  position = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  position |= inb(CRTPORT+1);
+	
+  while(position > 0)
+  {
+    cgaputc(BACKSPACE);
+
+    // Cursor position: col + 80*row.
+    outb(CRTPORT, 14);
+    position = inb(CRTPORT+1) << 8;
+    outb(CRTPORT, 15);
+    position |= inb(CRTPORT+1);
+  }
+}
+
+void write_header()
+{
+  cprintf("Welcome to Simon!\n\n");
+  cprintf("To see a list of commands, type \"command\" and press ENTER\n\n");
+  
+/*
+  int pos = 0;
+
+  char space = ' ';
+  char _S = 'S';
+  char _I = 'I';
+  char _M = 'M';
+  char _O = 'O';
+  char _N = 'N';
+
+  while(pos < 80)
+  {
+    // Cursor position: col + 80*row.
+    outb(CRTPORT, 14);
+    pos = inb(CRTPORT+1) << 8;
+    outb(CRTPORT, 15);
+    pos |= inb(CRTPORT+1);
+
+    if(pos < 37 || pos > 41)
+      crt[pos++] = (space & 0xff) | 0x8000; // Black on dark grey
+    else if (pos == 37)
+      crt[pos++] = (_S & 0xff) | 0x8000; // Black on dark grey
+    else if (pos == 37)
+      crt[pos++] = (_I & 0xff) | 0x8000; // Black on dark grey
+    else if (pos == 37)
+      crt[pos++] = (_M & 0xff) | 0x8000; // Black on dark grey
+    else if (pos == 37)
+      crt[pos++] = (_O & 0xff) | 0x8000; // Black on dark grey
+    else if (pos == 37)
+      crt[pos++] = (_N & 0xff) | 0x8000; // Black on dark grey
+
+    outb(CRTPORT, 14);
+    outb(CRTPORT+1, pos>>8);
+    outb(CRTPORT, 15);
+    outb(CRTPORT+1, pos);
+
+  }
+*/
+}
+
+void initialize_terminal()
+{
+  clear_terminal();
+  write_header();
+}
+
 void consputc(int c)
 {
   if(panicked){
@@ -165,12 +248,10 @@ void consputc(int c)
       ;
   }
 
-/*
-  if(c == BACKSPACE){
-     uartputc('\b'); uartputc(' '); uartputc('\b');
-  } else
-     uartputc(c);
-*/
+//  if(c == BACKSPACE){
+//    uartputc('\b'); uartputc(' '); uartputc('\b');
+//  } else
+//    uartputc(c);
   cgaputc(c);
 }
 

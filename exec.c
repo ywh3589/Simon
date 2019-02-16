@@ -7,8 +7,7 @@
 #include "x86.h"
 #include "elf.h"
 
-int
-exec(char *path, char **argv)
+int exec(char *path, char **argv)
 {
   char *s, *last;
   int i, off;
@@ -23,7 +22,7 @@ exec(char *path, char **argv)
 
   if((ip = namei(path)) == 0){
     end_op();
-    cprintf("exec: fail\n");
+    cprintf("That command is not recognized\n");
     return -1;
   }
   ilock(ip);
