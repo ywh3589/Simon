@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->pri = 10; // default
 
   release(&ptable.lock);
 
@@ -535,26 +536,35 @@ procdump(void)
 
 
 int
-cps()
+cps(int opt)
 {
     struct proc *p;
 
-    // Enable interrupts on this processor.
     sti();
 
-    // Loop over process table looking for process with pid.
     acquire(&ptable.lock);
-    
-    cprintf("\nname\t\tpid\t\tstate\n");
+
+    if (opt) {
+      cprintf("\nname\t\tpid\t\tstate\t\tpri\n");
+    } else {
+      cprintf("\nname\t\tpid\t\tstate\n");
+    }
     
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
         if(p->state == SLEEPING)
-            cprintf("%s\t\t%d\t\tSLEEPING\n", p->name, p->pid);
+            cprintf("%s\t\t%d\t\tSLEEPING", p->name, p->pid);
         else if(p->state == RUNNING)
-            cprintf("%s\t\t%d\t\tRUNNING\n", p->name, p->pid);
+            cprintf("%s\t\t%d\t\tRUNNING ", p->name, p->pid);
         else if(p->state == RUNNABLE)
-            cprintf("%s\t\t%d\t\tRUNNABLE\n", p->name, p->pid);
+            cprintf("%s\t\t%d\t\tRUNNABLE", p->name, p->pid);
+
+        if (p->state == SLEEPING || p->state == RUNNING || p->state == RUNNABLE) {
+          if(opt) {
+            cprintf("\t%d", p->pri);
+          }
+          cprintf("\n");
+        }
     }
 
     cprintf("\n");
@@ -562,5 +572,31 @@ cps()
     release(&ptable.lock);
 
     return 22;
+}
+
+int
+renice(pid, pri)
+{
+    struct proc *p;
+
+    sti();
+
+    acquire(&ptable.lock);
+
+    if (pri < -20 || pri > 19) {
+      return -1;
+    }
+    
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    {
+        if(p->pid == pid) {
+         p->pri = pri;
+        }
+    }
+
+    release(&ptable.lock);
+
+    return 23;
+
 }
 

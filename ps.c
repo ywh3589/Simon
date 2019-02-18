@@ -6,7 +6,11 @@
 int
 main(int argc, char *argv[])
 {
-    cps();
+    if(argc < 2){
+        cps("");
+    } else {
+        cps(argv[1]);
+    }
 
     exit();
 }

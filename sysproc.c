@@ -7,6 +7,7 @@
 #include "mmu.h"
 #include "proc.h"
 
+
 int
 sys_fork(void)
 {
@@ -93,5 +94,30 @@ sys_uptime(void)
 int
 sys_cps(void)
 {
-    return cps();
+  char *opt;
+  
+  if(argstr(0, &opt) < 0) {
+    return -1;
+  } else {
+    if (!strncmp("-l", opt, 2)) {
+      return cps(1);
+    } else {
+      return cps(0);
+    }
+  }
+  return -1;
+    
+}
+
+int
+sys_renice(void)
+{
+  int pid, pri;
+
+  if(argint(0, &pid) < 0)
+    return -1;
+  if(argint(1, &pri) < 0)
+    return -1;
+  return renice(pid, pri);
+    
 }
