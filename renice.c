@@ -10,16 +10,8 @@ main(int argc, char *argv[])
         printf(2, "Usage: nice pid priority\n");
         exit();
     }
-
-    int pid = atoi(argv[1]);
-    int pri = atoi(argv[2]);
-
-    if (pri < -20 || pri > 19) {
-        printf(2, "Usage: nice pid priority. Priority must be between -20 and 19\n");
-        exit();
-    }
     
-    renice(pid, pri);
+    renice(atoi(argv[1]), atoi(argv[2]));
 
     exit();
 }

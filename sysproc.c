@@ -112,12 +112,23 @@ sys_cps(void)
 int
 sys_renice(void)
 {
-  int pid, pri;
+  int pid;
+  int pri;
 
-  if(argint(0, &pid) < 0)
+  if (argint(0, &pid) < 0) {
     return -1;
-  if(argint(1, &pri) < 0)
+  }
+
+  if (argint(1, &pri) < 0) {
     return -1;
+  }
+
+  if (pri < -20) {
+    pri = -20;
+  } else if (pri > 19) {
+    pri = 19;
+  }
+
   return renice(pid, pri);
     
 }
