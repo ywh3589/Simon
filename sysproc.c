@@ -123,6 +123,10 @@ sys_renice(void)
     return -1;
   }
 
+  if (pid < 0) {
+    return -1;
+  }
+
   if (pri < -20) {
     pri = -20;
   } else if (pri > 19) {

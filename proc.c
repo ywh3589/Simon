@@ -583,7 +583,7 @@ renice(pid, pri)
 
     acquire(&ptable.lock);
 
-    if (pri < -20 || pri > 19) {
+    if (pri < -20 || pri > 19 || pid < 0) {
       return -1;
     }
     
