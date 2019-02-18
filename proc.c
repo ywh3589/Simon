@@ -583,8 +583,6 @@ renice(pid, pri)
 
     acquire(&ptable.lock);
 
-    cprintf("%d, %d\n", pid, pri);
-
     if (pri < -20 || pri > 19) {
       return -1;
     }
