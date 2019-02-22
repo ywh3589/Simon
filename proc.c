@@ -565,12 +565,24 @@ int cps(int opt)
     
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
-        if(p->state == SLEEPING)
-            cprintf("%s\t\t%d\t\t\tSLEEPING", p->name, p->pid);
-        else if(p->state == RUNNING)
-            cprintf("%s\t\t%d\t\t\tRUNNING ", p->name, p->pid);
-        else if(p->state == RUNNABLE)
-            cprintf("%s\t\t%d\t\t\tRUNNABLE", p->name, p->pid);
+	if(p->pid < 10)
+	{
+	        if(p->state == SLEEPING)
+	            cprintf("%s\t\t%d\t\t\tSLEEPING", p->name, p->pid);
+	        else if(p->state == RUNNING)
+	            cprintf("%s\t\t%d\t\t\tRUNNING ", p->name, p->pid);
+	        else if(p->state == RUNNABLE)
+	            cprintf("%s\t\t%d\t\t\tRUNNABLE", p->name, p->pid);
+	}
+	else
+	{
+	        if(p->state == SLEEPING)
+	            cprintf("%s\t\t%d\t\tSLEEPING", p->name, p->pid);
+	        else if(p->state == RUNNING)
+	            cprintf("%s\t\t%d\t\tRUNNING ", p->name, p->pid);
+	        else if(p->state == RUNNABLE)
+	            cprintf("%s\t\t%d\t\tRUNNABLE", p->name, p->pid);
+	}
 
         if (p->state == SLEEPING || p->state == RUNNING || p->state == RUNNABLE) {
           if(opt) {
@@ -579,8 +591,6 @@ int cps(int opt)
           cprintf("\n");
         }
     }
-
-    cprintf("\n");
 
     release(&ptable.lock);
 

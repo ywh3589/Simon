@@ -51,7 +51,7 @@ static void printint(int xx, int base, int sign)
     consputc(buf[i]);
 }
 
-int cursor_position()
+int get_cursor_position()
 {
   int pos;
 
@@ -64,6 +64,25 @@ int cursor_position()
   return pos;
 }
 
+void set_cursor_position(int position)
+{
+  outb(CRTPORT, 14);
+  outb(CRTPORT+1, position>>8);
+  outb(CRTPORT, 15);
+  outb(CRTPORT+1, position);
+  crt[position] = ' ' | 0x0700;
+}
+
+void scroll_up(int position)
+{
+  memmove(crt, crt+80, sizeof(crt[0])*23*80);			// move all console output up one line
+  position = 23 * 80; 						// put cursor at beginning of last line
+  memset(crt+position, 0, sizeof(crt[0])*(24*80 - position)); 	// clear the last line
+
+  set_cursor_position(position);
+}
+
+void clear_terminal();
 
 // Print to the console. only understands %d, %x, %p, %s.
 void cprintf(char *fmt, ...)
@@ -80,13 +99,16 @@ void cprintf(char *fmt, ...)
     panic("null fmt");
 
   argp = (uint*)(void*)(&fmt + 1);
-  int position = 0;
+  int position = get_cursor_position();
 
   for(i = 0; (c = fmt[i] & 0xff) != 0; i++)
   {
+    if(c == '#')
+      clear_terminal();
+
     if(c == '\t')
     {
-      position = cursor_position();
+      position = get_cursor_position();
       position = position % 80;		// this will set the position = column #
       position = (position + 1) % 4;	// this will compute how many spaces need to be added to reach a multiple of 4 for the column number
       if(position == 0) position = 4;    // set the position to be 4 if it is on a tab boundary
@@ -95,8 +117,11 @@ void cprintf(char *fmt, ...)
       {
         consputc(' ');
         --position;
-      }      
+      }
+
+      continue;      
     }
+
     if(c != '%')
     {
       consputc(c);
@@ -126,10 +151,14 @@ void cprintf(char *fmt, ...)
     case '%':
       consputc('%');
       break;
+    case 'Z':
+      clear_terminal();
+      consputc('A');
     default:
       // Print unknown % sequence to draw attention.
       consputc('%');
       consputc(c);
+      consputc('B');
       break;
     }
   }
@@ -171,13 +200,7 @@ void cgaputc_n(int c, int n)
 
 static void cgaputc(int c)
 {
-  int pos = cursor_position();
-
-  // Cursor position: col + 80*row.
-//  outb(CRTPORT, 14);
-//  pos = inb(CRTPORT+1) << 8;
-//  outb(CRTPORT, 15);
-//  pos |= inb(CRTPORT+1);
+  int pos = get_cursor_position();
 
   if(c == '\n')
     pos += 80 - pos%80;
@@ -199,39 +222,17 @@ static void cgaputc(int c)
   if(pos < 0 || pos > 25*80)
     panic("pos under/overflow");
 
-  if((pos/80) >= 24){  // Scroll up.
-    memmove(crt, crt+80, sizeof(crt[0])*23*80);
-    pos -= 80;
-    memset(crt+pos, 0, sizeof(crt[0])*(24*80 - pos));
-  }
-
-  outb(CRTPORT, 14);
-  outb(CRTPORT+1, pos>>8);
-  outb(CRTPORT, 15);
-  outb(CRTPORT+1, pos);
-  crt[pos] = ' ' | 0x0700;
+  if((pos/80) >= 24)
+    scroll_up(pos);
+  else
+    set_cursor_position(pos);
 }
 
 void clear_terminal()
 {
-  int position;
+  memset(crt, 0, sizeof(crt[0])*(24*80)); 	// clear the last line
 
-  // Cursor position: col + 80*row.
-  outb(CRTPORT, 14);
-  position = inb(CRTPORT+1) << 8;
-  outb(CRTPORT, 15);
-  position |= inb(CRTPORT+1);
-	
-  while(position > 0)
-  {
-    cgaputc(BACKSPACE);
-
-    // Cursor position: col + 80*row.
-    outb(CRTPORT, 14);
-    position = inb(CRTPORT+1) << 8;
-    outb(CRTPORT, 15);
-    position |= inb(CRTPORT+1);
-  }
+  set_cursor_position(0);
 }
 
 void write_header()
@@ -390,14 +391,35 @@ int consoleread(struct inode *ip, char *dst, int n)
   return target - n;
 }
 
+static int clear_flag = 0;
+
 int consolewrite(struct inode *ip, char *buf, int n)
 {
   int i;
 
   iunlock(ip);
   acquire(&cons.lock);
+
   for(i = 0; i < n; i++)
-    consputc(buf[i] & 0xff);
+  {
+    if(buf[i] == '%')
+    { 
+      clear_flag = 1;
+      consputc(buf[i] & 0xff);
+    }
+    else
+    {
+      if(clear_flag == 1 && buf[i] == 'Z')
+        clear_terminal();
+      else
+      {
+        consputc(buf[i] & 0xff);
+      }
+
+      clear_flag = 0;
+    }
+  }
+
   release(&cons.lock);
   ilock(ip);
 

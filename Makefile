@@ -167,6 +167,7 @@ mkfs: mkfs.c fs.h
 
 UPROGS=\
 	_cat\
+ 	_clear\
 	_command\
 	_echo\
 	_foo\
