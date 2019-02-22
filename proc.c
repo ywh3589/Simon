@@ -549,8 +549,7 @@ procdump(void)
 }
 
 
-int
-cps(int opt)
+int cps(int opt)
 {
     struct proc *p;
 
@@ -559,7 +558,7 @@ cps(int opt)
     acquire(&ptable.lock);
 
     if (opt) {
-      cprintf("\nname\t\tpid\t\tstate\t\tpri\n");
+      cprintf("\nname\t\tpid\t\tstate\t\t\tpri\n");
     } else {
       cprintf("\nname\t\tpid\t\tstate\n");
     }
@@ -567,11 +566,11 @@ cps(int opt)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
         if(p->state == SLEEPING)
-            cprintf("%s\t\t%d\t\tSLEEPING", p->name, p->pid);
+            cprintf("%s\t\t%d\t\t\tSLEEPING", p->name, p->pid);
         else if(p->state == RUNNING)
-            cprintf("%s\t\t%d\t\tRUNNING ", p->name, p->pid);
+            cprintf("%s\t\t%d\t\t\tRUNNING ", p->name, p->pid);
         else if(p->state == RUNNABLE)
-            cprintf("%s\t\t%d\t\tRUNNABLE", p->name, p->pid);
+            cprintf("%s\t\t%d\t\t\tRUNNABLE", p->name, p->pid);
 
         if (p->state == SLEEPING || p->state == RUNNING || p->state == RUNNABLE) {
           if(opt) {

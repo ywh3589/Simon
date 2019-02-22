@@ -15,8 +15,11 @@
 #include "proc.h"
 #include "x86.h"
 
-static void consputc(int);
+#define BACKSPACE 0x100
+#define CRTPORT 0x3d4
+static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
 
+static void consputc(int);
 static int panicked = 0;
 
 static struct {
@@ -48,6 +51,20 @@ static void printint(int xx, int base, int sign)
     consputc(buf[i]);
 }
 
+int cursor_position()
+{
+  int pos;
+
+  // Cursor position: col + 80*row.
+  outb(CRTPORT, 14);
+  pos = inb(CRTPORT+1) << 8;
+  outb(CRTPORT, 15);
+  pos |= inb(CRTPORT+1);
+
+  return pos;
+}
+
+
 // Print to the console. only understands %d, %x, %p, %s.
 void cprintf(char *fmt, ...)
 {
@@ -63,15 +80,36 @@ void cprintf(char *fmt, ...)
     panic("null fmt");
 
   argp = (uint*)(void*)(&fmt + 1);
-  for(i = 0; (c = fmt[i] & 0xff) != 0; i++){
-    if(c != '%'){
+  int position = 0;
+
+  for(i = 0; (c = fmt[i] & 0xff) != 0; i++)
+  {
+    if(c == '\t')
+    {
+      position = cursor_position();
+      position = position % 80;		// this will set the position = column #
+      position = (position + 1) % 4;	// this will compute how many spaces need to be added to reach a multiple of 4 for the column number
+      if(position == 0) position = 4;    // set the position to be 4 if it is on a tab boundary
+
+      while(position > 0) 		// put spaces until we reach tab boundary
+      {
+        consputc(' ');
+        --position;
+      }      
+    }
+    if(c != '%')
+    {
       consputc(c);
       continue;
     }
+    
     c = fmt[++i] & 0xff;
+    
     if(c == 0)
       break;
-    switch(c){
+    
+    switch(c)
+    {
     case 'd':
       printint(*argp++, 10, 1);
       break;
@@ -119,19 +157,27 @@ void panic(char *s)
     ;
 }
 
-#define BACKSPACE 0x100
-#define CRTPORT 0x3d4
-static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
+
+static void cgaputc(int c);
+
+void cgaputc_n(int c, int n)
+{
+  while(n > 0)
+  {
+    cgaputc(c);
+    --n;
+  }
+}
 
 static void cgaputc(int c)
 {
-  int pos;
+  int pos = cursor_position();
 
   // Cursor position: col + 80*row.
-  outb(CRTPORT, 14);
-  pos = inb(CRTPORT+1) << 8;
-  outb(CRTPORT, 15);
-  pos |= inb(CRTPORT+1);
+//  outb(CRTPORT, 14);
+//  pos = inb(CRTPORT+1) << 8;
+//  outb(CRTPORT, 15);
+//  pos |= inb(CRTPORT+1);
 
   if(c == '\n')
     pos += 80 - pos%80;
@@ -139,15 +185,14 @@ static void cgaputc(int c)
   {
     if(pos > 0) --pos;
   }
-/*  else if(c == '\t')
+  else if(c == '\t')
   {
-    int spaces = (pos + 1) % 4;		// determine how many space characters to add so it is a multiple of 4
+    int spaces = (pos + 1) % 8;		// determine how many space characters to add so it is a multiple of 4
     if (spaces == 0)
       spaces = 4;
 
-    for(int iii = 0; iii < spaces; ++iii)
-      cgaputc(' '); // space character
-  } */ 
+    cgaputc_n(32, spaces);   		// 32 = ASCII code for space char - ' '
+  }
   else
     crt[pos++] = (c&0xff) | 0x0700;  // black on white
 
