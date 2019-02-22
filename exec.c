@@ -98,6 +98,7 @@ int exec(char *path, char **argv)
   curproc->sz = sz;
   curproc->tf->eip = elf.entry;  // main
   curproc->tf->esp = sp;
+  curproc->pri = 3; // higher priority (lower number) to user executed command
   switchuvm(curproc);
   freevm(oldpgdir);
   return 0;
