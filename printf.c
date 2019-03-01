@@ -93,6 +93,15 @@ printf(int fd, const char *fmt, ...)
       {
         putc(fd, '%');	// writing "%Z" will tell the kernel to clear the terminal
         putc(fd, 'Z');
+      }
+      else if(c == 'C')
+      {
+        putc(fd, '%');	// write "%CN" where N = [0, F] and represents what color to make the text
+        putc(fd, 'C');
+        
+        c = fmt[i + 1] & 0xFF;
+        ++i;
+        putc(fd, c);
       } 
       else if(c == '%')
       {
@@ -108,4 +117,15 @@ printf(int fd, const char *fmt, ...)
       state = 0;
     }
   }
+
+  // at the end of each print job, reset the color to LIGHT GRAY
+  putc(fd, '%');
+  putc(fd, 'C');
+  putc(fd, '7');
+
 }
+
+
+
+
+
