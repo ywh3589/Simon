@@ -45,9 +45,69 @@ enum console_color {				// Upper byte for VGA is the color byte - lower byte wil
 	COLOR_WHITE 		= 0x0F00	
 };
 
+const enum console_color COLOR_DEFAULT = COLOR_LIGHT_GRAY;
+const char COLOR_DEFAULT_CHAR = '7';
+
 static enum console_color current_color_setting = COLOR_LIGHT_GRAY;
 
-static void consputc(int, enum console_color);
+void set_console_color(char setting)
+{
+	switch(setting)
+	{
+		case '0':
+			current_color_setting = COLOR_BLACK;
+			break;
+		case '1':
+			current_color_setting = COLOR_BLUE;
+			break;
+		case '2':
+			current_color_setting = COLOR_GREEN;
+			break;
+		case '3':
+			current_color_setting = COLOR_CYAN;
+			break;
+		case '4':
+			current_color_setting = COLOR_RED;
+			break;
+		case '5':
+			current_color_setting = COLOR_MAGENTA;
+			break;
+		case '6':
+			current_color_setting = COLOR_BROWN;
+			break;
+		case '7':
+			current_color_setting = COLOR_LIGHT_GRAY;
+			break;
+		case '8':
+			current_color_setting = COLOR_DARK_GRAY;
+			break;
+		case '9':
+			current_color_setting = COLOR_LIGHT_BLUE;
+			break;
+		case 'A':
+			current_color_setting = COLOR_LIGHT_GREEN;
+			break;
+		case 'B':
+			current_color_setting = COLOR_LIGHT_CYAN;
+			break;
+		case 'C':
+			current_color_setting = COLOR_LIGHT_RED;
+			break;
+		case 'D':
+			current_color_setting = COLOR_LIGHT_MAGENTA;
+			break;
+		case 'E':
+			current_color_setting = COLOR_LIGHT_BROWN;
+			break;
+		case 'F':
+			current_color_setting = COLOR_WHITE;
+			break;
+		default:
+			current_color_setting = COLOR_LIGHT_GRAY;
+	}
+}
+
+static void consputc(int);
 
 static void printint(int xx, int base, int sign)
 {
@@ -70,7 +130,7 @@ static void printint(int xx, int base, int sign)
 		buf[i++] = '-';
 
 	while(--i >= 0)
-		consputc(buf[i], current_color_setting);
+		consputc(buf[i]);
 }
 
 int get_cursor_position()
@@ -121,32 +181,12 @@ void cprintf(char *fmt, ...)
 		panic("null fmt");
 
 	argp = (uint*)(void*)(&fmt + 1);
-	int position = get_cursor_position();
 
 	for(i = 0; (c = fmt[i] & 0xff) != 0; i++)
 	{
-		if(c == '#')
-			clear_terminal();
-
-		if(c == '\t')
-		{
-			position = get_cursor_position();
-			position = position % 80;		// this will set the position = column #
-			position = (position + 1) % 4;	// this will compute how many spaces need to be added to reach a multiple of 4 for the column number
-			if(position == 0) position = 4;    // set the position to be 4 if it is on a tab boundary
-
-			while(position > 0) 		// put spaces until we reach tab boundary
-			{
-				consputc(' ', current_color_setting);
-				--position;
-			}
-
-			continue;      
-		}
-
 		if(c != '%')
 		{
-			consputc(c, current_color_setting);
+			consputc(c);
 			continue;
 		}
     
@@ -154,8 +194,9 @@ void cprintf(char *fmt, ...)
     
 		if(c == 0)
 			break;
-    
-		switch(c)
+    		
+// if we have made it here, then we encountered a '%' char and now 'c' holds the character that follows
+		switch(c)	
 		{
 			case 'd':
 				printint(*argp++, 10, 1);
@@ -170,21 +211,32 @@ void cprintf(char *fmt, ...)
 				if((s = (char*)*argp++) == 0)
 				s = "(null)";
 				for(; *s; s++)
-					consputc(*s, current_color_setting);
+					consputc(*s);
+				break;
+			
+			case 'C':
+				if((fmt[i + i] & 0xFF) != 0)
+				{
+					++i;
+					c = fmt[i] & 0xFF;
+					set_console_color(c);
+				}
 				break;
 
 			case '%':
-				consputc('%', current_color_setting);
+				consputc('%');
 				break;
 
 			default:
 				// Print unknown % sequence to draw attention.
-				consputc('%', current_color_setting);
-				consputc(c, current_color_setting);
-				consputc('B', current_color_setting);
+				consputc('%');
+				consputc(c);
+				consputc('B');
 				break;
 		}
 	}
+
+	set_console_color(COLOR_DEFAULT_CHAR);
 
 	if(locking)
 		release(&cons.lock);
@@ -211,19 +263,7 @@ void panic(char *s)
 		;
 }
 
-
-static void cgaputc(int c, enum console_color foreground_color);
-
-void cgaputc_n(int c, int n, enum console_color foreground_color)
-{
-	while(n > 0)
-	{
-		cgaputc(c, foreground_color);
-		--n;
-	}
-}
-
-static void cgaputc(int c, enum console_color foreground_color)
+static void cgaputc(int c)
 {
 	int pos = get_cursor_position();
 
@@ -235,15 +275,10 @@ static void cgaputc(int c, enum console_color foreground_color)
 	}
 	else if(c == '\t')
 	{
-		int spaces = (pos + 1) % 8;		// determine how many space characters to add so it is a multiple of 4
-		if (spaces == 0)
-			spaces = 4;
-
-		cgaputc_n(32, spaces, COLOR_LIGHT_GRAY);  // 32 = ASCII code for space char - ' '
+		pos += (8 - (((pos % 80) + 1) % 8));		// compute the number of positions to move to be on a tab boundary(8 spaces)
 	}
 	else
-		crt[pos++] = (c & 0xFF) | foreground_color; 
-//		crt[pos++] = (c&0xff) | 0x0700;  	// light gray on white
+		crt[pos++] = (c & 0xFF) | current_color_setting; 
 
 	if(pos < 0 || pos > 25*80)
 		panic("pos under/overflow");
@@ -263,46 +298,7 @@ void clear_terminal()
 void write_header()
 {
 	cprintf("Welcome to Simon!\n\n");
-	cprintf("To see a list of commands, type \"command\" and press ENTER\n\n");
-  
-/*
-  int pos = 0;
-
-  char space = ' ';
-  char _S = 'S';
-  char _I = 'I';
-  char _M = 'M';
-  char _O = 'O';
-  char _N = 'N';
-
-  while(pos < 80)
-  {
-    // Cursor position: col + 80*row.
-    outb(CRTPORT, 14);
-    pos = inb(CRTPORT+1) << 8;
-    outb(CRTPORT, 15);
-    pos |= inb(CRTPORT+1);
-
-    if(pos < 37 || pos > 41)
-      crt[pos++] = (space & 0xff) | 0x8000; // Black on dark grey
-    else if (pos == 37)
-      crt[pos++] = (_S & 0xff) | 0x8000; // Black on dark grey
-    else if (pos == 37)
-      crt[pos++] = (_I & 0xff) | 0x8000; // Black on dark grey
-    else if (pos == 37)
-      crt[pos++] = (_M & 0xff) | 0x8000; // Black on dark grey
-    else if (pos == 37)
-      crt[pos++] = (_O & 0xff) | 0x8000; // Black on dark grey
-    else if (pos == 37)
-      crt[pos++] = (_N & 0xff) | 0x8000; // Black on dark grey
-
-    outb(CRTPORT, 14);
-    outb(CRTPORT+1, pos>>8);
-    outb(CRTPORT, 15);
-    outb(CRTPORT+1, pos);
-
-  }
-*/
+	cprintf("To see a list of commands, type \"command\" and press ENTER\n\n");  
 }
 
 void initialize_terminal()
@@ -311,7 +307,7 @@ void initialize_terminal()
 	write_header();
 }
 
-void consputc(int c, enum console_color color)
+void consputc(int c)
 {
 	if(panicked)
 	{
@@ -320,7 +316,7 @@ void consputc(int c, enum console_color color)
       			;
 	}
 
-	cgaputc(c, color);
+	cgaputc(c);
 }
 
 #define INPUT_BUF 128
@@ -351,7 +347,7 @@ void consoleintr(int (*getc)(void))	// called from kdb.c with function 'kdbgetc'
 				while(input.e != input.w && input.buf[(input.e-1) % INPUT_BUF] != '\n')
 				{
 					input.e--;
-					consputc(BACKSPACE, current_color_setting);
+					consputc(BACKSPACE);
 				}
 				break;
 			
@@ -359,7 +355,7 @@ void consoleintr(int (*getc)(void))	// called from kdb.c with function 'kdbgetc'
 				if(input.e != input.w)
 				{
 					input.e--;
-					consputc(BACKSPACE, current_color_setting);
+					consputc(BACKSPACE);
 				}
 				break;
 
@@ -368,7 +364,7 @@ void consoleintr(int (*getc)(void))	// called from kdb.c with function 'kdbgetc'
 				{
 					c = (c == '\r') ? '\n' : c;
 					input.buf[input.e++ % INPUT_BUF] = c;
-					consputc(c, current_color_setting);
+					consputc(c);
 					if(c == '\n' || c == C('D') || input.e == input.r+INPUT_BUF)
 					{
 						input.w = input.e;
@@ -435,63 +431,6 @@ int consoleread(struct inode *ip, char *dst, int n)
 	return target - n;
 }
 
-void set_console_color(char setting)
-{
-	switch(setting)
-	{
-		case '0':
-			current_color_setting = COLOR_BLACK;
-			break;
-		case '1':
-			current_color_setting = COLOR_BLUE;
-			break;
-		case '2':
-			current_color_setting = COLOR_GREEN;
-			break;
-		case '3':
-			current_color_setting = COLOR_CYAN;
-			break;
-		case '4':
-			current_color_setting = COLOR_RED;
-			break;
-		case '5':
-			current_color_setting = COLOR_MAGENTA;
-			break;
-		case '6':
-			current_color_setting = COLOR_BROWN;
-			break;
-		case '7':
-			current_color_setting = COLOR_LIGHT_GRAY;
-			break;
-		case '8':
-			current_color_setting = COLOR_DARK_GRAY;
-			break;
-		case '9':
-			current_color_setting = COLOR_LIGHT_BLUE;
-			break;
-		case 'A':
-			current_color_setting = COLOR_LIGHT_GREEN;
-			break;
-		case 'B':
-			current_color_setting = COLOR_LIGHT_CYAN;
-			break;
-		case 'C':
-			current_color_setting = COLOR_LIGHT_RED;
-			break;
-		case 'D':
-			current_color_setting = COLOR_LIGHT_MAGENTA;
-			break;
-		case 'E':
-			current_color_setting = COLOR_LIGHT_BROWN;
-			break;
-		case 'F':
-			current_color_setting = COLOR_WHITE;
-			break;
-		default:
-			current_color_setting = COLOR_LIGHT_GRAY;
-	}
-}
-
 static int percent_flag = 0;
 static int color_flag = 0;
 
@@ -511,7 +450,7 @@ int consolewrite(struct inode *ip, char *buf, int n)
 
 			// print the '%' char if the next char is not 'Z' or 'C'
 			if(i + 1 < n && buf[i + 1] != 'Z' && buf[i + 1] != 'C')
-				consputc(buf[i] & 0xff, current_color_setting);
+				consputc(buf[i] & 0xff);
 		}
 		else
 		{
@@ -535,12 +474,12 @@ int consolewrite(struct inode *ip, char *buf, int n)
 				else
 				{
 					percent_flag = 0;
-					consputc(buf[i] & 0xFF, current_color_setting);
+					consputc(buf[i] & 0xFF);
 				}				
 			}
 			else
 			{
-				consputc(buf[i] & 0xff, current_color_setting);
+				consputc(buf[i] & 0xff);
 			}
 		}
 	}
