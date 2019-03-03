@@ -589,7 +589,7 @@ cps(int opt)
 }
 
 int
-renice(pid, pri)
+renice(int pid, int pri)
 {
     struct proc *p;
 
