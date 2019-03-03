@@ -549,8 +549,7 @@ procdump(void)
 }
 
 
-int
-cps(int opt)
+int cps(int opt)
 {
     struct proc *p;
 
@@ -559,19 +558,31 @@ cps(int opt)
     acquire(&ptable.lock);
 
     if (opt) {
-      cprintf("\nname\t\tpid\t\tstate\t\tpri\n");
+      cprintf("\n%CDname\tpid\tstate\t\tpri\n");
     } else {
-      cprintf("\nname\t\tpid\t\tstate\n");
+      cprintf("\n%CDname\tpid\tstate\n");
     }
     
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
-        if(p->state == SLEEPING)
-            cprintf("%s\t\t%d\t\tSLEEPING", p->name, p->pid);
-        else if(p->state == RUNNING)
-            cprintf("%s\t\t%d\t\tRUNNING ", p->name, p->pid);
-        else if(p->state == RUNNABLE)
-            cprintf("%s\t\t%d\t\tRUNNABLE", p->name, p->pid);
+	if(p->pid < 10)
+	{
+	        if(p->state == SLEEPING)
+	            cprintf("%s\t%d\tSLEEPING", p->name, p->pid);
+	        else if(p->state == RUNNING)
+	            cprintf("%s\t%d\tRUNNING ", p->name, p->pid);
+	        else if(p->state == RUNNABLE)
+	            cprintf("%s\t%d\tRUNNABLE", p->name, p->pid);
+	}
+	else
+	{
+	        if(p->state == SLEEPING)
+	            cprintf("%s\t%d\tSLEEPING", p->name, p->pid);
+	        else if(p->state == RUNNING)
+	            cprintf("%s\t%d\tRUNNING ", p->name, p->pid);
+	        else if(p->state == RUNNABLE)
+	            cprintf("%s\t%d\tRUNNABLE", p->name, p->pid);
+	}
 
         if (p->state == SLEEPING || p->state == RUNNING || p->state == RUNNABLE) {
           if(opt) {
@@ -580,8 +591,6 @@ cps(int opt)
           cprintf("\n");
         }
     }
-
-    cprintf("\n");
 
     release(&ptable.lock);
 
