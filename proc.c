@@ -504,9 +504,11 @@ kill(int pid)
       if(p->state == SLEEPING)
         p->state = RUNNABLE;
       release(&ptable.lock);
+      cprintf("process deleted\n");  
       return 0;
     }
   }
+  cprintf("There is no process whose pid is matching\n"); 
   release(&ptable.lock);
   return -1;
 }

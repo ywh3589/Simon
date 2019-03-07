@@ -6,12 +6,21 @@ int
 main(int argc, char **argv)
 {
   int i;
-
-  if(argc < 2){
+  i = atoi(argv[1]);
+  
+  if(argc != 2){
     printf(2, "usage: kill pid...\n");
     exit();
   }
-  for(i=1; i<argc; i++)
-    kill(atoi(argv[i]));
+  else{
+    if(i == 1){
+        printf(2, "can not kill initial process\n");
+      
+     }
+     else{
+        kill(atoi(argv[1]));
+     }
+
+  }
   exit();
 }
