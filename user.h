@@ -26,6 +26,8 @@ int uptime(void);
 int cps(const char*);
 int renice(int, int);
 int lseek(int, int, int);
+int shm_open(int, char **);
+int shm_close(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

@@ -23,3 +23,5 @@
 #define SYS_cps    22
 #define SYS_renice 23
 #define SYS_lseek  24
+#define SYS_shm_open 25
+#define SYS_shm_close 26
