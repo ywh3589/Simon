@@ -504,11 +504,11 @@ kill(int pid)
       if(p->state == SLEEPING)
         p->state = RUNNABLE;
       release(&ptable.lock);
-      cprintf("process deleted\n");  
-      return 0;
+      cprintf("process id %d deleted\n", p->pid);  
+        return 0;
     }
   }
-  cprintf("There is no process whose pid is matching\n"); 
+  cprintf("There is no process whose pid is %d\n", pid); 
   release(&ptable.lock);
   return -1;
 }
@@ -623,4 +623,19 @@ int renice(int new_pid, int new_pri)
     return 23;
 
 }
+
+int pwd(void){
+   // struct proc *p;
+
+    sti();
+
+    acquire(&ptable.lock);
+
+cprintf("pwd inserted\n");
+
+    release(&ptable.lock);
+    return 24;
+
+}
+
 

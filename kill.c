@@ -5,10 +5,12 @@
 int
 main(int argc, char **argv)
 {
-  int i;
+  int i, j;
+  int numOfArgs = argc;
+
   i = atoi(argv[1]);
   
-  if(argc != 2){
+  if(argc < 2){
     printf(2, "usage: kill pid...\n");
     exit();
   }
@@ -18,7 +20,8 @@ main(int argc, char **argv)
       
      }
      else{
-        kill(atoi(argv[1]));
+     for(j = 1; j < numOfArgs; j++)  
+        kill(atoi(argv[j]));
      }
 
   }
