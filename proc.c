@@ -10,6 +10,8 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  struct proc unused[NPROC];
+  int unusedNum; 
 } ptable;
 
 static struct proc *initproc;
@@ -74,15 +76,39 @@ static struct proc*
 allocproc(void)
 {
   struct proc *p;
+
   char *sp;
 
   acquire(&ptable.lock);
 
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    if(p->state == UNUSED)
-      goto found;
 
-  release(&ptable.lock);
+
+  if(ptable.unusedNum > 0 )
+  {
+  // cprintf("line 87\n"); 
+    //goto found;
+    for(p = ptable.unused; p < &ptable.unused[NPROC]; p++)
+    {
+        if(p->state == UNUSED)
+            goto found;
+    }
+  }    
+
+
+    int i  = 0;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  { 
+    if(p->state == UNUSED)
+    {
+       // cprintf("%d", p->pid);
+        goto found;
+    }
+    i++;
+  }
+
+
+release(&ptable.lock);
   return 0;
 
 found:
@@ -95,6 +121,8 @@ found:
   // Allocate kernel stack.
   if((p->kstack = kalloc()) == 0){
     p->state = UNUSED;
+    ptable.unused[ptable.unusedNum] = *p;
+    ptable.unusedNum++;
     return 0;
   }
   sp = p->kstack + KSTACKSIZE;
@@ -296,6 +324,9 @@ wait(void)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
+        ptable.unused[ptable.unusedNum] = *p;
+        ptable.unusedNum++;
+        //ptable.unused = *p;
         release(&ptable.lock);
         return pid;
       }
@@ -625,14 +656,20 @@ int renice(int new_pid, int new_pri)
 }
 
 int pwd(void){
-   // struct proc *p;
+    struct proc *p;
 
     sti();
 
     acquire(&ptable.lock);
+    //p = ptable.proc
 
-cprintf("pwd inserted\n");
-
+//cprintf("pwd inserted\n");
+    for( p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    {
+        if(p->cwd){
+            cprintf("%s\n", p->cwd);
+        }
+    }
     release(&ptable.lock);
     return 24;
 
