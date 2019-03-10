@@ -28,6 +28,15 @@ sys_wait(void)
 }
 
 int
+sys_waitpid(void)
+{
+    int pid; 
+    if(argint(0, &pid) <0)
+      return -1;
+    return waitpid(pid);
+}
+
+int
 sys_kill(void)
 {
   int pid;
@@ -136,3 +145,12 @@ sys_renice(void)
   return renice(pid, pri);
     
 }
+
+
+int 
+sys_pwd(void){
+
+    return pwd();
+
+}
+

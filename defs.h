@@ -123,6 +123,8 @@ void            wakeup(void*);
 void            yield(void);
 int             cps(int);
 int             renice(int, int);
+int             pwd(void);
+int             waitpid(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 int cps(const char*);
 int renice(int, int);
+int pwd(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

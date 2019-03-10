@@ -23,7 +23,8 @@ int main(void)
 	mpinit();        // detect other processors
 	lapicinit();     // interrupt controller
 	seginit();       // segment descriptors
-	picinit();       // disable pic
+	cprintf("starting simon os 32\n");
+    picinit();       // disable pic
 	ioapicinit();    // another interrupt controller
 	consoleinit();   // console hardware
 	uartinit();      // serial port
