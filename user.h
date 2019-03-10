@@ -42,3 +42,8 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+
+void sem_init(struct semaphore*, uint);
+void sem_wait(struct semaphore*);
+void sem_signal(struct semaphore*);
+void sem_broadcast(struct semaphore*);

@@ -74,16 +74,25 @@ int shm_close(int id)
   acquire(&(shm_table.lock));
   for (i = 0; i< 64; i++) {
     if (shm_table.shm_pages[i].id == id) {
+
       shm_table.shm_pages[i].refcnt--;
       freepte(myproc()->pgdir, (void*) PGROUNDUP(myproc()->sz));
 
-      if (shm_table.shm_pages[i].frame) {
-        kfree(shm_table.shm_pages[i].frame);
-        shm_table.shm_pages[i].frame = 0;
-      }
+      // if (shm_table.shm_pages[i].frame) {
+      //   kfree(shm_table.shm_pages[i].frame);
+      //   shm_table.shm_pages[i].frame = 0;
+      // }
 
+      // cprintf("shm ref cnt:%d\n", shm_table.shm_pages[i].refcnt);
+      
       if (shm_table.shm_pages[i].refcnt == 0) {
         shm_table.shm_pages[i].id = 0;
+
+        if (shm_table.shm_pages[i].frame) {
+          kfree(shm_table.shm_pages[i].frame);
+          shm_table.shm_pages[i].frame = 0;
+        }
+
       }
       break;
     }

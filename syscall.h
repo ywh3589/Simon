@@ -23,5 +23,9 @@
 #define SYS_cps    22
 #define SYS_renice 23
 #define SYS_lseek  24
-#define SYS_shm_open 25
-#define SYS_shm_close 26
+#define SYS_shm_open      25
+#define SYS_shm_close     26
+#define SYS_sem_init      27
+#define SYS_sem_wait      28
+#define SYS_sem_signal    29
+#define SYS_sem_broadcast 30
