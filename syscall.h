@@ -23,4 +23,5 @@
 #define SYS_cps    22
 #define SYS_renice 23
 #define SYS_pwd    24
-#define SYS_waitpid 25 
+#define SYS_waitpid 25
+#define SYS_lseek 26

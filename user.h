@@ -26,6 +26,7 @@ int uptime(void);
 int cps(const char*);
 int renice(int, int);
 int pwd(void);
+int lseek(int, int, int); 
 
 // ulib.c
 int stat(const char*, struct stat*);

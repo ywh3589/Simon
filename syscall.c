@@ -107,6 +107,7 @@ extern int sys_cps(void);
 extern int sys_renice(void);
 extern int sys_pwd(void);
 extern int sys_waitpid(void);
+extern int sys_lseek(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -134,6 +135,7 @@ static int (*syscalls[])(void) = {
 [SYS_renice]  sys_renice,
 [SYS_pwd]     sys_pwd,
 [SYS_waitpid] sys_waitpid,
+[SYS_lseek]   sys_lseek,
 };
 
 void
