@@ -64,7 +64,8 @@ createTestFile(void)
 {
     int fd;
     char data[1024];
-    strcpy(data, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n");
+    //strcpy(data, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n");
+    strcpy(data, "one\ntwo\nthree\nfour\nfive\nsix\nseven\neight\nnine\nten\neleven\n");
 
     fd = open("tail_test", O_CREATE | O_RDWR);
     if(fd >= 0) {
@@ -75,7 +76,7 @@ createTestFile(void)
     }
 
     int size = sizeof(data);
-    if(write(fd, &data, size) != size){
+    if(write(fd, data, size) != size){
         printf(1, "error: write to file failed\n");
         exit();
     }
