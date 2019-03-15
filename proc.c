@@ -606,14 +606,14 @@ renice(int pid, int pri)
 
     acquire(&ptable.lock);
 
-    if (pri < -20 || pri > 19 || pid < 0) {
+    if (new_pri < -20 || new_pri > 19 || new_pid < 0) {
       return -1;
     }
     
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
-        if(p->pid == pid) {
-         p->pri = pri;
+        if(p->pid == new_pid) {
+         p->pri = new_pri;
         }
     }
 
