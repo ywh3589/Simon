@@ -597,7 +597,8 @@ int cps(int opt)
     return 22;
 }
 
-int renice(int new_pid, int new_pri)
+int
+renice(int pid, int pri)
 {
     struct proc *p;
 
@@ -605,14 +606,14 @@ int renice(int new_pid, int new_pri)
 
     acquire(&ptable.lock);
 
-    if (new_pri < -20 || new_pri > 19 || new_pid < 0) {
+    if (pri < -20 || pri > 19 || pid < 0) {
       return -1;
     }
     
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
-        if(p->pid == new_pid) {
-         p->pri = new_pri;
+        if(p->pid == pid) {
+         p->pri = pri;
         }
     }
 
