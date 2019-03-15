@@ -646,7 +646,8 @@ int cps(int opt)
     return 22;
 }
 
-int renice(int new_pid, int new_pri)
+int
+renice(int pid, int pri)
 {
     struct proc *p;
 

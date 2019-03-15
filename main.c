@@ -24,7 +24,7 @@ int main(void)
 	lapicinit();     // interrupt controller
 	seginit();       // segment descriptors
 	cprintf("starting simon os 32\n");
-    picinit();       // disable pic
+  picinit();       // disable pic
 	ioapicinit();    // another interrupt controller
 	consoleinit();   // console hardware
 	uartinit();      // serial port

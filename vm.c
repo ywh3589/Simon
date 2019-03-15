@@ -57,7 +57,7 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
 // Create PTEs for virtual addresses starting at va that refer to
 // physical addresses starting at pa. va and size might not
 // be page-aligned.
-static int
+int
 mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
 {
   char *a, *last;
@@ -68,8 +68,9 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
   for(;;){
     if((pte = walkpgdir(pgdir, a, 1)) == 0)
       return -1;
-    if(*pte & PTE_P)
+    if(*pte & PTE_P) {
       panic("remap");
+    }
     *pte = pa | perm | PTE_P;
     if(a == last)
       break;
@@ -77,6 +78,32 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
     pa += PGSIZE;
   }
   return 0;
+}
+
+int
+freepte(pde_t *pgdir, void *va)
+{
+  char *a;
+  pde_t *pde;
+  pte_t *pgtab;
+  pte_t *pte;
+
+  a = (char*)PGROUNDDOWN((uint)va);
+  pde = &pgdir[PDX(a)];
+  if (*pde) {
+    pgtab = (pte_t*)P2V(PTE_ADDR(*pde));
+    if (pgtab) {
+      pte = &pgtab[PTX(a)];
+      if (pte) {
+        *pte = 0;
+      }
+    }
+    *pde = 0;
+    pte = 0;
+
+    return 0;
+  }
+  return -1;
 }
 
 // There is one page table per process, plus one that's used when

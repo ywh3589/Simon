@@ -15,6 +15,8 @@ OBJS = \
 	picirq.o\
 	pipe.o\
 	proc.o\
+	semaphore.o\
+	shm.o\
 	sleeplock.o\
 	spinlock.o\
 	string.o\
@@ -143,7 +145,7 @@ tags: $(OBJS) entryother.S _init
 vectors.S: vectors.pl
 	./vectors.pl > vectors.S
 
-ULIB = ulib.o usys.o printf.o umalloc.o
+ULIB = ulib.o usys.o printf.o umalloc.o uspinlock.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -170,6 +172,7 @@ UPROGS=\
  	_clear\
 	_command\
 	_echo\
+	_filetest\
 	_foo\
 	_forktest\
 	_grep\
@@ -182,7 +185,10 @@ UPROGS=\
 	_renice\
 	_rm\
 	_sh\
+	_shm_consumer\
+	_shm_producer\
 	_stressfs\
+	_tail\
 	_usertests\
 	_wc\
 	_zombie\
@@ -259,7 +265,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 
 EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
-	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c ps.c renice.c foo.c filetest.c tail.c filesize.c filecopy.c editor.c\
+	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c ps.c renice.c foo.c filetest.c tail.c shm_consumer.c shm_producer.c uspinlock.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\

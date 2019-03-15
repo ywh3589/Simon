@@ -146,7 +146,6 @@ sys_renice(void)
     
 }
 
-
 int 
 sys_pwd(void){
 
@@ -154,3 +153,73 @@ sys_pwd(void){
 
 }
 
+// shared memory
+
+int
+sys_shm_open(void)
+{
+  int id;
+  char **pointer;
+
+  if(argint(0, &id) < 0) {
+    return -1;
+  }
+
+  if(argptr(1, (char **) (&pointer),4)<0) {
+    return -1;
+  }
+
+  return shm_open(id, pointer);
+}
+
+int
+sys_shm_close(void)
+{
+  int id;
+
+  if(argint(0, &id) < 0) {
+    return -1;
+  }
+
+  return shm_close(id);
+}
+
+// semaphores
+
+int
+sys_sem_init(void)
+{
+  struct semaphore * sem;
+  int i;
+  argptr(0, (char **) &sem, sizeof(struct semaphore*));
+  argint(1, &i);
+  sem_init(sem, i);
+  return 0;
+}
+
+int
+sys_sem_wait(void)
+{
+  struct semaphore * sem;
+  argptr(0, (char **) &sem, sizeof(struct semaphore*));
+  sem_wait(sem);
+  return 0;
+}
+
+int
+sys_sem_signal(void)
+{
+  struct semaphore * sem;
+  argptr(0, (char **) &sem, sizeof(struct semaphore*));
+  sem_signal(sem);
+  return 0;
+}
+
+int
+sys_sem_broadcast(void)
+{
+  struct semaphore * sem;
+  argptr(0, (char **) &sem, sizeof(struct semaphore*));
+  sem_broadcast(sem);
+  return 0;
+}

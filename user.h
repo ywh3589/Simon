@@ -27,6 +27,8 @@ int cps(const char*);
 int renice(int, int);
 int pwd(void);
 int lseek(int, int, int); 
+int shm_open(int, char **);
+int shm_close(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -41,3 +43,8 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+
+void sem_init(struct semaphore*, uint);
+void sem_wait(struct semaphore*);
+void sem_signal(struct semaphore*);
+void sem_broadcast(struct semaphore*);

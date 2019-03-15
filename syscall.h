@@ -22,6 +22,12 @@
 #define SYS_close  21
 #define SYS_cps    22
 #define SYS_renice 23
-#define SYS_pwd    24
-#define SYS_waitpid 25
-#define SYS_lseek 26
+#define SYS_pwd           24
+#define SYS_waitpid       25
+#define SYS_lseek         26
+#define SYS_shm_open      27
+#define SYS_shm_close     28
+#define SYS_sem_init      29
+#define SYS_sem_wait      30
+#define SYS_sem_signal    31
+#define SYS_sem_broadcast 32
