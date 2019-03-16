@@ -55,7 +55,8 @@ static void mpmain(void)
  
   idtinit();       // load idt register
   xchg(&(mycpu()->started), 1); // tell startothers() we're up
-  scheduler();     // start running processes
+  //scheduler();     // start running processes
+    lotteryScheduler();
 }
 
 pde_t entrypgdir[];  // For entry.S

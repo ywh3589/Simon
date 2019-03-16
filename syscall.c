@@ -107,6 +107,7 @@ extern int sys_cps(void);
 extern int sys_renice(void);
 extern int sys_lseek(void);
 extern int sys_cLseek(void);
+extern int sys_random(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -134,6 +135,7 @@ static int (*syscalls[])(void) = {
 [SYS_renice]  sys_renice,
 [SYS_lseek]   sys_lseek,
 [SYS_cLseek]  sys_cLseek,
+[SYS_random]  sys_random,
 };
 
 void

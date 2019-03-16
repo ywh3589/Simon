@@ -7,6 +7,10 @@
 #include "proc.h"
 #include "spinlock.h"
 
+
+#define MAX 1000
+
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -88,7 +92,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->pri = 10; // default
+  //p->pri = 10; // default
+  p->tickets = 10;
 
   release(&ptable.lock);
 
@@ -320,6 +325,7 @@ wait(void)
 //  - swtch to start running that process
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
+/*
 void
 scheduler(void)
 {
@@ -370,6 +376,81 @@ scheduler(void)
   }
 }
 
+*/
+static
+unsigned long
+lcg_rand(unsigned long a){
+
+	return (a * 33335264UL) % 538145624UL;
+}
+
+
+int lotteryTotal(void){
+	struct proc *p;
+	int total_tickets = 0;
+
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+			if(p->state == RUNNABLE){
+				total_tickets += p->tickets; 
+			}
+	}
+
+	return total_tickets;
+}
+
+
+void
+lotteryScheduler(void)
+{
+
+
+  struct cpu *c = mycpu();
+  c->proc = 0;
+  
+  struct proc *p;
+  int total_tickets, runval = 0;
+  int chosen;
+
+	for(;;){
+		runval++;
+		sti();
+		acquire(&ptable.lock);
+
+		total_tickets = lotteryTotal();
+
+		if(total_tickets > 0){
+			chosen =lcg_rand(lcg_rand(runval*total_tickets));
+
+			if(total_tickets < chosen){
+				chosen %= total_tickets;
+			}
+		
+			for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      			if(p->state == RUNNABLE){
+      				chosen -= p->tickets;
+        		}
+        		if(p->state != RUNNABLE || chosen >= 0){
+        			continue;
+        		}
+
+        	//	cprintf("Process chosen : #%s \n", p->name);
+        		
+        	c->proc = p;
+     	 	switchuvm(p);
+      		p->state = RUNNING;
+			swtch(&(c->lotteryScheduler), p->context);
+      		switchkvm();
+		    c->proc = 0;
+			}	
+	
+		}
+
+	release(&ptable.lock);
+
+	}
+
+} 
+
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
 // intena because intena is a property of this
@@ -392,7 +473,9 @@ sched(void)
   if(readeflags()&FL_IF)
     panic("sched interruptible");
   intena = mycpu()->intena;
-  swtch(&p->context, mycpu()->scheduler);
+ // swtch(&p->context, mycpu()->scheduler);
+  swtch(&p->context, mycpu()->lotteryScheduler);
+ 
   mycpu()->intena = intena;
 }
 
@@ -624,3 +707,31 @@ int renice(int new_pid, int new_pri)
 
 }
 
+
+int random(int seed) {
+/*
+  int r[MAX];
+  int i;
+
+  r[0] = seed;
+  for (i=1; i<31; i++) {
+    r[i] = (16807LL * r[i-1]) % 2147483647;
+    if (r[i] < 0) {
+      r[i] += 2147483647;
+    }
+  }
+  for (i=31; i<34; i++) {
+    r[i] = r[i-31];
+  }
+  for (i=34; i<344; i++) {
+    r[i] = r[i-31] + r[i-3];
+  }
+  for (i=344; i<MAX; i++) {
+    r[i] = r[i-31] + r[i-3];
+   // printf("%d\n", ((unsigned int)r[i]) >> 1);
+  }
+	return ((unsigned int)r[i]) >> 1;
+*/
+return 29;
+  
+}

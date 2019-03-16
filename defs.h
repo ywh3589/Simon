@@ -114,6 +114,7 @@ struct proc*    myproc();
 void            pinit(void);
 void            procdump(void);
 void            scheduler(void) __attribute__((noreturn));
+void            lotteryScheduler(void) __attribute__((noreturn));
 void            sched(void);
 void            setproc(struct proc*);
 void            sleep(void*, struct spinlock*);
@@ -125,7 +126,7 @@ int             cps(int);
 int             renice(int, int);
 int             pwd(void);
 int             waitpid(int);
-
+int             random(int);
 // swtch.S
 void            swtch(struct context**, struct context*);
 

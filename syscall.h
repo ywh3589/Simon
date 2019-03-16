@@ -24,3 +24,4 @@
 #define SYS_renice 23
 #define SYS_lseek  24
 #define SYS_cLseek 25
+#define SYS_random 26 

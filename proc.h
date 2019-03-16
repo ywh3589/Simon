@@ -1,7 +1,8 @@
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
-  struct context *scheduler;   // swtch() here to enter scheduler
+  //struct context *scheduler;   // swtch() here to enter scheduler
+  struct context* lotteryScheduler;
   struct taskstate ts;         // Used by x86 to find stack for interrupt
   struct segdesc gdt[NSEGS];   // x86 global descriptor table
   volatile uint started;       // Has the CPU started?
@@ -49,6 +50,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  int tickets;                 // tickets to implement lottery scheduling
   int pri;                     // Process priority
 };
 
