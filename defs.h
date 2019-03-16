@@ -123,6 +123,8 @@ void            wakeup(void*);
 void            yield(void);
 int             cps(int);
 int             renice(int, int);
+int             pwd(void);
+int             waitpid(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
@@ -150,6 +152,18 @@ char*           safestrcpy(char*, const char*, int);
 int             strlen(const char*);
 int             strncmp(const char*, const char*, uint);
 char*           strncpy(char*, const char*, int);
+// customized functions made by woohyuk added to string.c
+char*			cStrcat(char*, char*);
+char* 			cStrtok(char*, char*);
+char* 			cRevString(char*);
+char*			cStrToUpper(char*);
+char*			cStrToLower(char*);
+int 			cAtoi(char*, int );
+int 			hexStringToInt(char*);
+int 			decStringToInt(char*);
+int 			cItoa(int, char*, int );
+int 			hexToString(int, char*);
+int 			decToString(int, char*);
 
 // syscall.c
 int             argint(int, int*);

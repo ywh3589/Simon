@@ -25,6 +25,8 @@ int sleep(int);
 int uptime(void);
 int cps(const char*);
 int renice(int, int);
+int lseek(int, int, int);
+int cLseek(int, int, int);
 
 // ulib.c
 int stat(const char*, struct stat*);
