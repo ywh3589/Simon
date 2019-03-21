@@ -385,20 +385,8 @@ lcg_rand(unsigned long a){
 }
 
 
-int lotteryTotal(void){
-	struct proc *p;
-	int total_tickets = 0;
 
-	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-			if(p->state == RUNNABLE){
-				total_tickets += p->tickets; 
-			}
-	}
-
-	return total_tickets;
-}
-
-
+//https://github.com/siddharthsingh/OS/tree/master/XV6/lottery%20scheduling
 void
 lotteryScheduler(void)
 {
@@ -408,7 +396,7 @@ lotteryScheduler(void)
   c->proc = 0;
   
   struct proc *p;
-  int total_tickets, runval = 0;
+  int runval = 0;
   int chosen;
 
 	for(;;){
@@ -416,7 +404,13 @@ lotteryScheduler(void)
 		sti();
 		acquire(&ptable.lock);
 
-		total_tickets = lotteryTotal();
+		int total_tickets = 0;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state == RUNNABLE){
+        total_tickets += p->tickets; 
+      }
+  }
 
 		if(total_tickets > 0){
 			chosen =lcg_rand(lcg_rand(runval*total_tickets));
@@ -707,31 +701,3 @@ int renice(int new_pid, int new_pri)
 
 }
 
-
-int random(int seed) {
-/*
-  int r[MAX];
-  int i;
-
-  r[0] = seed;
-  for (i=1; i<31; i++) {
-    r[i] = (16807LL * r[i-1]) % 2147483647;
-    if (r[i] < 0) {
-      r[i] += 2147483647;
-    }
-  }
-  for (i=31; i<34; i++) {
-    r[i] = r[i-31];
-  }
-  for (i=34; i<344; i++) {
-    r[i] = r[i-31] + r[i-3];
-  }
-  for (i=344; i<MAX; i++) {
-    r[i] = r[i-31] + r[i-3];
-   // printf("%d\n", ((unsigned int)r[i]) >> 1);
-  }
-	return ((unsigned int)r[i]) >> 1;
-*/
-return 29;
-  
-}

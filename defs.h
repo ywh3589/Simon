@@ -177,6 +177,10 @@ void            syscall(void);
 // timer.c
 void            timerinit(void);
 
+// random.c
+int 			rand(void);
+int 			randomrange(int lo, int hi);
+
 // trap.c
 void            idtinit(void);
 extern uint     ticks;

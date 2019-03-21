@@ -79,6 +79,17 @@ for(; ai < lineNumber; ai++){
 
       
 //editor instruction
+ printf(1, "%Z");
+    //https://j0n9m1n1.com/87
+   
+    printf(1, "\\    /\\\n");
+
+    printf(1, " )  ( ')\n");
+
+    printf(1, "(  /  )\n");
+
+    printf(1, " \\(__)|\n\n");
+ 
    cHelp();
 
 //input buffer
@@ -315,13 +326,14 @@ int getLineNumber(char *text)
 void cHelp()
 {
 	printf(1, "****************************************\n");
-	printf(1, "Welcome to Simon eidotr ~~\n\n");
+	printf(1, "Welcome to Simon editor~, I am Sicat again to help you!\n\n");
 	printf(1, "what you typed, automatically, will be appended to the end of the file.\n");
 	printf(1, "instructions for use:\n");
 	printf(1, "ins n, insert a line after line n\n");
 	printf(1, "mod n, modify line n\n");
 	printf(1, "del n, delete line n\n");
 	printf(1, "show, showing the current text.\n");
+    printf(1, "help, showing the instruction, again.\n");
 	printf(1, "save, save the file\n");
 	printf(1, "exit, exit editor\n");
     printf(1, "****************************************\n");

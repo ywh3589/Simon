@@ -170,28 +170,28 @@ UPROGS=\
  	_clear\
 	_command\
 	_echo\
-	_foo\
 	_forktest\
 	_grep\
 	_init\
 	_kill\
 	_ln\
 	_ls\
-	_mkdir\
 	_ps\
-	_renice\
+	_mkdir\
 	_rm\
 	_sh\
-	_stressfs\
-	_usertests\
 	_wc\
 	_zombie\
 	_editor\
 	_filesize\
 	_filecopy\
-	_filetest\
-	_rand\
-	
+	_filesystemtest\
+	_app\
+	_phonebook\
+	_typeWriter\
+	_bingo\
+	_dailyRiddle\
+
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
 
@@ -259,7 +259,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 
 EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
-	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c ps.c renice.c foo.c editor.c filesize.c filecopy.c filetest.c rand.c\
+	ln.c ls.ps.c mkdir.c rm.c bingo.c phonebook.c typeWriter.c app.c wc.c zombie.c dailyRiddle.c editor.c filesize.c filecopy.c filesystemtest.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\

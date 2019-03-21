@@ -8,6 +8,13 @@ int main(int argc, char* argv[]){
 	int fd, fileSize;
 
 	if(argc < 2) {
+		 printf(1, "\\    /\\\n");
+
+    printf(1, " )  ( ')\n");
+
+    printf(1, "(  /  )\n");
+
+    printf(1, " \\(__)|\n\n");
       printf(2, "Usage: filesize filename \n");
       exit();
   }
@@ -23,6 +30,15 @@ int main(int argc, char* argv[]){
 		printf(1, "ERROR: lseek failed\n");
 		exit();
 	}
+	
+			printf(1, "%Z");
+	 printf(1, "\\    /\\\n");
+
+    printf(1, " )  ( ')\n");
+
+    printf(1, "(  /  )\n");
+
+    printf(1, " \\(__)|\n\n");
 
 	printf(1, "%s's size is %d\n", argv[1], fileSize);
 	close(fd);

@@ -297,7 +297,26 @@ void clear_terminal()
 
 void write_header()
 {
-	cprintf("Welcome to Simon!\n\n");
+	
+	//http://patorjk.com/software/taag/#p=display&h=2&v=3&f=Doom&t=SIMON%2032%20OS
+cprintf("   _____ _____ __  __  ____  _   _   ____ ___     ____   _____ \n");
+cprintf("  / ____|_   _|  \\/  |/ __ \\| \\ | | |___ \\__ \\   / __ \\ / ____|\n");
+cprintf(" | (___   | | | \\  / | |  | |  \\| |   __) | ) | | |  | | (___  \n");
+cprintf("  \\___ \\  | | | |\\/| | |  | | . ` |  |__ < / /  | |  | |\\___ \\ \n");
+cprintf("  ____) |_| |_| |  | | |__| | |\\  |  ___) / /_  | |__| |____) |\n");
+cprintf(" |_____/|_____|_|  |_|\\____/|_| \\_| |____/____|  \\____/|_____/ \n\n");
+
+	
+    cprintf("Welcome to Simon!\n\n");
+    //https://j0n9m1n1.com/87
+    cprintf("\\    /\\\n");
+
+    cprintf(" )  ( ')\n");
+
+    cprintf("(  /  )\n");
+
+    cprintf(" \\(__)|\n\n");
+    cprintf("My name is Sicat!, I will help you to explore Simon!\n\n");
 	cprintf("To see a list of commands, type \"command\" and press ENTER\n\n");  
 }
 

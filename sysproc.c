@@ -36,16 +36,6 @@ sys_kill(void)
     return -1;
   return kill(pid);
 }
-
-int 
-sys_random(void)
-{
-    int seed;
-   if(argint(0, &seed) < 0)
-    return -1;
-    return random(seed);
-
-}
 int
 sys_getpid(void)
 {

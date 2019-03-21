@@ -12,7 +12,14 @@ int main(int argc, char *argv[]){
 	char buf[MAX];
 
 	if(argc < 3) {
-      printf(2, "Usage: filecopy [des filename] [src filename] \n");
+     printf(1, "\\    /\\\n");
+
+    printf(1, " )  ( ')\n");
+
+    printf(1, "(  /  )\n");
+
+    printf(1, " \\(__)|\n\n");
+      printf(2, "Usage: filecopy [src filename] [des filename] \n");
       exit();
   }
 
@@ -33,6 +40,20 @@ int main(int argc, char *argv[]){
   		exit();		
   	}
   }
+
+
+
+
+      printf(1, "%Z");
+   printf(1, "\\    /\\\n");
+
+    printf(1, " )  ( ')\n");
+
+    printf(1, "(  /  )\n");
+
+    printf(1, " \\(__)|\n\n");
+
+    printf(1, "file %s has been successfully copied as %s\n", argv[1], argv[2]);
 
   close(fd1);
   close(fd2);
